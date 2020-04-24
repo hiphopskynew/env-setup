@@ -1,0 +1,7 @@
+#!/bin/bash
+
+source snap
+
+sudo snap install snap-store
+sudo rm /var/cache/fontconfig/*
+rm ~/.cache/fontconfig/*

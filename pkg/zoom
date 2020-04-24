@@ -1,0 +1,8 @@
+#!/bin/bash
+
+source wget
+
+filename="zoom_amd64.deb"
+filepath="/tmp/${filename}"
+wget "https://zoom.us/client/latest/${filename}" -O "${filepath}"
+sudo apt install "${filepath}" -y

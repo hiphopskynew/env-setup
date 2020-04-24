@@ -1,0 +1,8 @@
+#!/bin/bash
+
+source wget
+
+filename="teamviewer_amd64.deb"
+filepath="/tmp/${filename}"
+wget "https://download.teamviewer.com/download/linux/${filename}" -O "${filepath}"
+sudo apt install "${filepath}" -y

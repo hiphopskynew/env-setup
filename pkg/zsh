@@ -1,0 +1,17 @@
+#!/bin/bash
+
+source wget
+source fonts-powerline
+source git
+source curl
+
+sudo apt install zsh -y
+chsh -s /usr/bin/zsh root
+chsh -s /usr/bin/zsh $USER
+wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | zsh
+cp ~/.oh-my-zsh/templates/zshrc.zsh-template ~/.zshrc
+
+echo 'alias zshconfig="vim ~/.zshrc"' >>~/.zshrc
+echo 'alias ohmyzsh="vim ~/.oh-my-zsh"' >>~/.zshrc
+
+source ~/.zshrc

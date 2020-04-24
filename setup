@@ -1,0 +1,128 @@
+#!/bin/bash
+
+pkg_dir="pkg"
+support_version="19.10"
+flag_y=""
+
+pkg_availables=($(ls $pkg_dir))
+pkg_excluded=('fonts-powerline')
+
+for target in "${pkg_excluded[@]}"; do
+  for i in "${!pkg_availables[@]}"; do
+    if [[ ${pkg_availables[i]} = $target ]]; then
+      unset 'pkg_availables[i]'
+    fi
+  done
+done
+
+while getopts ":" opt; do
+	if [ "$OPTARG" == "y" ]; then
+		flag_y="$OPTARG"
+	fi
+done
+
+# Check operation system
+check_os_version() {
+	version=$1
+	if [ -n "$(cat /etc/os-release | grep "VERSION_ID=\"${version}\"")" ]; then
+		echo "Yeh"
+	fi
+}
+
+# Check package installed on the environment
+IFS=':' read -r -a paths <<<"$PATH"
+is_installed() {
+	app=$1
+	for path in "${paths[@]}"; do
+		if [ -f "$path/$app" ]; then
+			echo "exist"
+			return
+		fi
+	done
+}
+
+# Check package file
+has_package() {
+	app=$1
+	for pkg in "${pkg_availables[@]}"; do
+		if [ "$pkg" == "$app" ]; then
+			echo "exist"
+			return
+		fi
+	done
+}
+
+# ensure to install packages
+ensure_install_apps() {
+	IFS=' ' read -r -a apps <<<"$1"
+	for app in "${apps[@]}"; do
+
+		# The install package file not found
+		if [ -z "$(has_package ${app})" ]; then
+			# force yes flag
+			if [ "$flag_y" == "y" ]; then
+				skipvar="y"
+			else
+				read -p "[warn] Package $app does not support. Do you want to skip? [Y/n] " skipvar
+			fi
+
+			# skip or end installation
+			if [ "$skipvar" == "y" ]; then
+				continue
+			else
+				echo "[info] The installation is done."
+				exit 1
+			fi
+		fi
+
+		# Install package if the package installation not yet
+		if [ -z "$(is_installed ${app})" ]; then
+			echo "[info] ${app} installing..."
+			install $app
+		fi
+	done
+	echo "[info] The installation is done."
+}
+
+# Install package
+install() {
+	app=$1
+	/bin/bash "${pkg_dir}/${1}"
+}
+
+if [ -z "$(check_os_version $support_version)" ]; then
+	echo "The operation system is not supported, only support Ubuntu version ${support_version}."
+	exit 1
+fi
+
+info() {
+	echo '
+###########################################################
+# All packages are supported, see below
+
+' [$(ls ${pkg_dir})]'
+
+# Please enter packages that you want to install separate each package by space such as 
+ :: curl git vim zsh docker postman 
+###########################################################
+'
+}
+
+user_choosing_packages_to_install() {
+	info
+
+	read -p "Install packages :: " pre_requisite
+
+	if [ -z "$pre_requisite" ]; then
+		read -p "Do you want to install all packages? [Y/n]" confirm
+		if [ "$confirm" == "Y" ] || [ "$confirm" == "y" ]; then
+			pre_requisite="${pkg_availables[*]}"
+		else
+			user_choosing_packages_to_install
+		fi
+	fi
+
+	ensure_install_apps "$pre_requisite"
+}
+
+user_choosing_packages_to_install

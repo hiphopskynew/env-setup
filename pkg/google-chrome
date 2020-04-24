@@ -1,0 +1,8 @@
+#!/bin/bash
+
+source wget
+
+filename="google-chrome-stable_current_amd64.deb"
+filepath="/tmp/${filename}"
+wget "https://dl.google.com/linux/direct/${filename}" -O "${filepath}"
+sudo apt install "${filepath}" -y

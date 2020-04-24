@@ -1,0 +1,24 @@
+#!/bin/bash
+
+source curl
+source wget
+
+read -t 10 -p "What the Golang version do you want to install? (default: latest) " version
+
+file="go${version}.linux-amd64.tar.gz"
+if [ "$version" == "latest" ] || [ -z "$version" ]; then
+  file=$(curl -ssL https://golang.org/dl | grep -e "downloadBox.*linux-amd64.tar.gz" | cut -d/ -f5 | cut -d\" -f1)
+fi
+
+filepath="/tmp/${file}"
+wget "https://dl.google.com/go/${file}" -O "${filepath}"
+sudo tar -C /usr/local -xzf "$filepath"
+gobin="/usr/local/go/bin"
+
+if [[ "$PATH" != *":${gobin}"* ]]; then
+  if [[ "$SHELL" == *"zsh"* ]]; then
+    echo "PATH=\$PATH:${gobin}" >>$HOME/.zprofile
+  else
+    echo "PATH=\$PATH:${gobin}" >>$HOME/.profile
+  fi
+fi

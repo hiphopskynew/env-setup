@@ -1,9 +1,9 @@
 #!/bin/bash
 
-source wget
-source fonts-powerline
-source git
-source curl
+source ./wget
+source ./fonts-powerline
+source ./git
+source ./curl
 
 sudo apt install zsh -y
 chsh -s /usr/bin/zsh root

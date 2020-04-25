@@ -1,4 +1,4 @@
 #!/bin/bash
 
-source snap
-sudo snap install code-insiders
+source ./snap
+sudo snap install code-insiders --classic

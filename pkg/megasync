@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source wget
+source ./wget
 
 filename="megasync-xUbuntu_19.10_amd64.deb"
 filepath="/tmp/${filename}"

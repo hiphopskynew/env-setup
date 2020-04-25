@@ -1,5 +1,7 @@
 #!/bin/bash
 
+sudo echo ""
+
 pkg_dir="pkg"
 support_version="19.10"
 flag_y=""

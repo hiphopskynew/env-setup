@@ -2,6 +2,10 @@
 
 assets=$2
 
+if [ -d "/usr/share/fonts/WindowsFonts" ]; then
+  exit 0
+fi
+
 filename="WindowsFonts.tar.xz"
 filepath="$assets/$filename"
 

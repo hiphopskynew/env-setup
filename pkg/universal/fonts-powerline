@@ -1,8 +1,12 @@
 #!/bin/bash
 
+assets=$2
+
 sudo apt install fonts-powerline -y
 
-assets=$2
+if [ -d "/usr/share/fonts/Menlo-for-Powerline" ]; then
+  exit 0
+fi
 
 filename="Menlo-for-Powerline.tar.xz"
 filepath="$assets/$filename"

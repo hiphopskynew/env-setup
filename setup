@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# File env-setup.zip md5sum
+check_sum="64d10a6025e54c44775ac0ecdccae763"
+
 prerequisite() {
 	echo '
   ## Pre-Requisite ##
@@ -14,6 +17,12 @@ prerequisite() {
 			echo '[error] Missing file "env-setup.zip", Please do Pre-Requisite step.'
 			prerequisite
 		fi
+
+		fs=$(md5sum "env-setup.zip" | cut -d\  -f1)
+		if [ "$fs" != "$check_sum" ]; then
+			echo '[error] File "env-setup.zip" is invalid.'
+			prerequisite
+		fi
 	else
 		prerequisite
 	fi
@@ -23,11 +32,11 @@ prerequisite
 flag_y=""
 pkg_dir="pkg"
 support_os_versions=()
+assets="/tmp/env-setup"
 pkg_excluded=('fonts-powerline')
 os_version=$(cat /etc/os-release | grep -e "VERSION_ID" | cut -d\" -f2)
 pkg_availables=($(ls ${pkg_dir}/${os_version}) $(ls ${pkg_dir}/universal))
-assets="/tmp/env-setup"
-unzip env-setup.zip -d /tmp
+unzip env-setup.zip -d /tmp -y
 
 for d in ${pkg_dir}/*/; do
 	support_os_versions+=($(echo $d | cut -d/ -f2))
@@ -105,7 +114,6 @@ ensure_install_apps() {
 
 		# Install package if the package installation not yet
 		if [ -z "$(is_installed ${app})" ]; then
-			echo "[info] ${app} installing..."
 			install $app
 		fi
 	done

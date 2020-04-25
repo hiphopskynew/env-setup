@@ -1,0 +1,26 @@
+#!/bin/bash
+
+assets=$2
+
+if [ ! -d /opt/studio3t ]; then
+  filename="Studio3T.tar.xz"
+  filepath="$assets/$filename"
+
+  sudo tar -C /tmp -xvf "$filepath"
+  unzip -o -q /tmp/Studio3T/studio-3t.zip -d /tmp
+  mkdir -m 755 -p $HOME/.3T/
+
+  if [ ! -d $HOME/.3T/studio-3t ]; then
+    mv /tmp/studio-3t $HOME/.3T/studio-3t
+  fi
+
+  sudo /bin/bash /tmp/Studio3T/studio-3t-linux-x64.sh
+fi
+
+cache=($(ls "$HOME/.cache"))
+for c in ${cache[@]}; do
+  if [ -n "$(echo $c | grep -e "--$")" ] && [ -d "$HOME/.cache/$c" ]; then
+    rm -rf "$HOME/.cache/$c"
+  fi
+done
+rm -f $HOME/Library/Preferences/3t.mongochef.enterprise.plist

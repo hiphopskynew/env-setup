@@ -1,7 +1,5 @@
 #!/bin/bash
 
-sudo echo ""
-
 pkg_dir="pkg"
 support_version="19.10"
 flag_y=""
@@ -89,7 +87,7 @@ ensure_install_apps() {
 # Install package
 install() {
 	app=$1
-	/bin/bash "${pkg_dir}/${1}"
+	/bin/bash "${pkg_dir}/${1}" "${pkg_dir}"
 }
 
 if [ -z "$(check_os_version $support_version)" ]; then

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source ./wget
+source $1/wget
 
 filename="teamviewer_amd64.deb"
 filepath="/tmp/${filename}"

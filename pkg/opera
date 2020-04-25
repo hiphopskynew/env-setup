@@ -1,5 +1,5 @@
 #!/bin/bash
 
-source ./snap
+source $1/snap
 
 sudo snap install opera --beta

@@ -1,7 +1,7 @@
 #!/bin/bash
 
-source ./curl
-source ./wget
+source $1/curl
+source $1/wget
 
 read -t 10 -p "What the Golang version do you want to install? (default: latest) " version
 

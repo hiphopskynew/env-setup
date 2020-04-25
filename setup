@@ -1,11 +1,33 @@
 #!/bin/bash
 
+prerequisite() {
+	echo '
+  ## Pre-Requisite ##
+
+  1). Go to "https://mega.nz/folder/Yuhh2Qib#LFj8-oEhblppEuRns5Wwbw"
+  2). Click "Download as ZIP"
+  3). Move file "env-setup.zip" to "'$(pwd)'" directory
+'
+	read -p "Did you do Prerequisite step done? [Y/n] " pr
+	if [ "$pr" == "Y" ] || [ "$pr" == "y" ]; then
+		if [ ! -f "env-setup.zip" ]; then
+			echo '[error] Missing file "env-setup.zip", Please do Pre-Requisite step.'
+			prerequisite
+		fi
+	else
+		prerequisite
+	fi
+}
+prerequisite
+
 flag_y=""
 pkg_dir="pkg"
 support_os_versions=()
 pkg_excluded=('fonts-powerline')
 os_version=$(cat /etc/os-release | grep -e "VERSION_ID" | cut -d\" -f2)
 pkg_availables=($(ls ${pkg_dir}/${os_version}) $(ls ${pkg_dir}/universal))
+assets="/tmp/env-setup"
+unzip env-setup.zip -d /tmp
 
 for d in ${pkg_dir}/*/; do
 	support_os_versions+=($(echo $d | cut -d/ -f2))
@@ -96,7 +118,7 @@ install() {
 	if [ -f "${pkg_dir}/${os_version}/${app}" ]; then
 		/bin/bash "${pkg_dir}/${os_version}/${app}" "${pkg_dir}/${os_version}"
 	else
-		/bin/bash "${pkg_dir}/universal/${app}" "${pkg_dir}/universal"
+		/bin/bash "${pkg_dir}/universal/${app}" "${pkg_dir}/universal" "${assets}"
 	fi
 }
 
@@ -124,7 +146,7 @@ user_choosing_packages_to_install() {
 	read -p "Do you want to install all packages? [Y/n]" confirm
 	if [ "$confirm" == "Y" ] || [ "$confirm" == "y" ]; then
 		ensure_install_apps "${pkg_availables[*]}"
-		exit 0;	
+		exit 0
 	fi
 	if [ "$confirm" == "N" ] || [ "$confirm" == "n" ]; then
 		read -p "Enter packages :: " pkg_input
@@ -132,7 +154,7 @@ user_choosing_packages_to_install() {
 			user_choosing_packages_to_install
 		fi
 		ensure_install_apps "${pkg_input[*]}"
-		exit 0;	
+		exit 0
 	fi
 
 	user_choosing_packages_to_install

@@ -1,0 +1,10 @@
+#!/bin/bash
+
+assets=$2
+
+filename="WindowsFonts.tar.xz"
+filepath="$assets/$filename"
+
+sudo tar -C /usr/share/fonts -xvf "$filepath"
+sudo chmod 755 /usr/share/fonts/WindowsFonts/*
+fc-cache -f -v

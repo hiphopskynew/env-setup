@@ -1,18 +1,22 @@
 #!/bin/bash
 
-pkg_dir="pkg"
-support_version="19.10"
 flag_y=""
-
-pkg_availables=($(ls $pkg_dir))
+pkg_dir="pkg"
+support_os_versions=()
 pkg_excluded=('fonts-powerline')
+os_version=$(cat /etc/os-release | grep -e "VERSION_ID" | cut -d\" -f2)
+pkg_availables=($(ls ${pkg_dir}/${os_version}) $(ls ${pkg_dir}/universal))
+
+for d in ${pkg_dir}/*/; do
+	support_os_versions+=($(echo $d | cut -d/ -f2))
+done
 
 for target in "${pkg_excluded[@]}"; do
-  for i in "${!pkg_availables[@]}"; do
-    if [[ ${pkg_availables[i]} = $target ]]; then
-      unset 'pkg_availables[i]'
-    fi
-  done
+	for i in "${!pkg_availables[@]}"; do
+		if [[ ${pkg_availables[i]} = $target ]]; then
+			unset 'pkg_availables[i]'
+		fi
+	done
 done
 
 while getopts ":" opt; do
@@ -23,10 +27,12 @@ done
 
 # Check operation system
 check_os_version() {
-	version=$1
-	if [ -n "$(cat /etc/os-release | grep "VERSION_ID=\"${version}\"")" ]; then
-		echo "Yeh"
-	fi
+	for version in "${support_os_versions[@]}"; do
+		if [ "$version" == "$os_version" ]; then
+			echo "OK"
+			return
+		fi
+	done
 }
 
 # Check package installed on the environment
@@ -63,11 +69,11 @@ ensure_install_apps() {
 			if [ "$flag_y" == "y" ]; then
 				skipvar="y"
 			else
-				read -p "[warn] Package $app does not support. Do you want to skip? [Y/n] " skipvar
+				read -p "[warn] Package $app does not support. Do you want to continue? [Y/n] " skipvar
 			fi
 
 			# skip or end installation
-			if [ "$skipvar" == "y" ]; then
+			if [ "$skipvar" == "Y" ] || [ "$skipvar" == "y" ]; then
 				continue
 			else
 				echo "[info] The installation is done."
@@ -87,11 +93,15 @@ ensure_install_apps() {
 # Install package
 install() {
 	app=$1
-	/bin/bash "${pkg_dir}/${1}" "${pkg_dir}"
+	if [ -f "${pkg_dir}/${os_version}/${app}" ]; then
+		/bin/bash "${pkg_dir}/${os_version}/${app}" "${pkg_dir}/${os_version}"
+	else
+		/bin/bash "${pkg_dir}/universal/${app}" "${pkg_dir}/universal"
+	fi
 }
 
-if [ -z "$(check_os_version $support_version)" ]; then
-	echo "The operation system is not supported, only support Ubuntu version ${support_version}."
+if [ -z "$(check_os_version)" ]; then
+	echo "The operation system is not supported."
 	exit 1
 fi
 
@@ -100,7 +110,7 @@ info() {
 ###########################################################
 # All packages are supported, see below
 
-' [$(ls ${pkg_dir})]'
+' ["${pkg_availables[*]}"]'
 
 # Please enter packages that you want to install separate each package by space such as 
  :: curl git vim zsh docker postman 
@@ -111,18 +121,21 @@ info() {
 user_choosing_packages_to_install() {
 	info
 
-	read -p "Install packages :: " pre_requisite
-
-	if [ -z "$pre_requisite" ]; then
-		read -p "Do you want to install all packages? [Y/n]" confirm
-		if [ "$confirm" == "Y" ] || [ "$confirm" == "y" ]; then
-			pre_requisite="${pkg_availables[*]}"
-		else
+	read -p "Do you want to install all packages? [Y/n]" confirm
+	if [ "$confirm" == "Y" ] || [ "$confirm" == "y" ]; then
+		ensure_install_apps "${pkg_availables[*]}"
+		exit 0;	
+	fi
+	if [ "$confirm" == "N" ] || [ "$confirm" == "n" ]; then
+		read -p "Enter packages :: " pkg_input
+		if [ -z "$pkg_input" ]; then
 			user_choosing_packages_to_install
 		fi
+		ensure_install_apps "${pkg_input[*]}"
+		exit 0;	
 	fi
 
-	ensure_install_apps "$pre_requisite"
+	user_choosing_packages_to_install
 }
 
 user_choosing_packages_to_install

@@ -1,0 +1,8 @@
+#!/bin/bash
+
+source $1/wget
+
+filename="megasync-xUbuntu_20.04_amd64.deb"
+filepath="/tmp/${filename}"
+wget "https://mega.nz/linux/MEGAsync/xUbuntu_20.04/amd64/${filename}" -O "${filepath}"
+sudo apt install "${filepath}" -y

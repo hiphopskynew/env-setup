@@ -5,13 +5,42 @@ source $1/fonts-powerline
 source $1/git
 source $1/curl
 
+# Install ZSH and Oh my ZSH
 sudo apt install zsh -y
 chsh -s /usr/bin/zsh root
 chsh -s /usr/bin/zsh $USER
 wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | zsh
-cp ~/.oh-my-zsh/templates/zshrc.zsh-template ~/.zshrc
+cp $HOME/.oh-my-zsh/templates/zshrc.zsh-template $HOME/.zshrc
 
-echo 'alias zshconfig="vim ~/.zshrc"' >>~/.zshrc
-echo 'alias ohmyzsh="vim ~/.oh-my-zsh"' >>~/.zshrc
+# Setup theme, plugins, and alias command
+zsh_autosuggestions_path="$HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
+if [ ! -d "$zsh_autosuggestions_path" ]; then
+  git clone https://github.com/zsh-users/zsh-autosuggestions.git $zsh_autosuggestions_path
+fi
 
-source ~/.zshrc
+zsh_syntax_highlighting_path="$HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting"
+if [ ! -d "$zsh_syntax_highlighting_path" ]; then
+  git clone https://github.com/zsh-users/zsh-syntax-highlighting.git $zsh_syntax_highlighting_path
+fi
+
+ps=$(cat $HOME/.zshrc | grep -e "^plugins=(" | cut -d= -f2 | cut -d\( -f2 | cut -d\) -f1)
+IFS=' ' read -r -a plugins <<<"$ps"
+for np in "z" "copydir" "zsh-autosuggestions" "zsh-syntax-highlighting"; do
+  add_flag=1
+  for p in "${plugins[@]}"; do
+    if [[ "$np" == "$p" ]]; then
+      add_flag=
+      break
+    fi
+  done
+  if [ -n "$add_flag" ]; then
+    plugins+=($np)
+  fi
+done
+
+sed -ie '/^plugins=/c\'"$(echo "plugins=(${plugins[*]})")"'' $HOME/.zshrc
+sed -ie '/^ZSH_THEME=/c\ZSH_THEME="agnoster"' $HOME/.zshrc
+sed -ie '/^# alias zshconfig=/c\alias zshconfig="vim ~/.zshrc"' $HOME/.zshrc
+sed -ie '/^# alias ohmyzsh=/c\alias ohmyzsh="vim ~/.oh-my-zsh"' $HOME/.zshrc
+
+source $HOME/.zshrc

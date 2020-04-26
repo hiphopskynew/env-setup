@@ -1,0 +1,9 @@
+#!/bin/bash
+
+source $1/wget
+
+repository="https://packages.microsoft.com/repos/ms-teams/pool/main/t/teams"
+filename=$(curl -ssL $repository | grep teams_ | tail -n -1 | cut -d"\"" -f2)
+filepath="/tmp/${filename}"
+wget "$repository/${filename}" -O "${filepath}"
+sudo apt install "${filepath}" -y

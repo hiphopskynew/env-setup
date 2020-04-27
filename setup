@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # File env-setup.zip md5sum
-check_sum="553e859e5df93133d57fdd312aa01b8c"
+check_sum="7816f13f0f0f0b918984b26235a8e45c"
 
 prerequisite() {
 	echo '

@@ -38,6 +38,8 @@ for np in "z" "copydir" "zsh-autosuggestions" "zsh-syntax-highlighting"; do
   fi
 done
 
+sudo apt install xclip xsel -y
+
 sed -ie '/^plugins=/c\'"$(echo "plugins=(${plugins[*]})")"'' $HOME/.zshrc
 sed -ie '/^ZSH_THEME=/c\ZSH_THEME="agnoster"' $HOME/.zshrc
 sed -ie '/^# alias zshconfig=/c\alias zshconfig="vim ~/.zshrc"' $HOME/.zshrc
